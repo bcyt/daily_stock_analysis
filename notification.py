@@ -811,9 +811,9 @@ class NotificationService:
         content = "\n".join(lines)
         
         # 检查长度
-        if len(content) > 3800:
-            logger.warning(f"仪表盘超长({len(content)}字符)，截断")
-            content = content[:3800] + "\n...(已截断)"
+       # if len(content) > 3800:
+        #    logger.warning(f"仪表盘超长({len(content)}字符)，截断")
+        #    content = content[:3800] + "\n...(已截断)"
         
         return content
     
