@@ -14,6 +14,10 @@ A股自选股智能分析系统 - 通知层
    - 邮件 SMTP
    - Pushover（手机/桌面推送）
 """
+import hmac
+import hashlib
+import base64
+import urllib.parse
 
 import logging
 import json
@@ -2226,6 +2230,23 @@ class NotificationService:
 
         total = len(chunks)
         ok = 0
+
+        # 计算 timestamp 和 sign（用于钉钉机器人签名验证）
+        secret = 'SEC88421d5b5bd0da2c76983fdef366def0eecb2061169403271268e73f5dc7ce9d'
+
+        if secret:
+            # 生成 timestamp 和 sign
+            timestamp = str(round(_time.time() * 1000))
+            secret_enc = secret.encode('utf-8')
+            string_to_sign = '{}\n{}'.format(timestamp, secret)
+            string_to_sign_enc = string_to_sign.encode('utf-8')
+            hmac_code = hmac.new(secret_enc, string_to_sign_enc, digestmod=hashlib.sha256).digest()
+            sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
+
+            # 在 URL 后面拼装 timestamp 和 sign
+            separator = '&' if '?' in url else '?'
+            url = f"{url}{separator}timestamp={timestamp}&sign={sign}"
+
 
         for idx, chunk in enumerate(chunks):
             marker = f"\n\n📄 *({idx+1}/{total})*" if total > 1 else ""
